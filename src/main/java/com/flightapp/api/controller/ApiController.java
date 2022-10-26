@@ -27,4 +27,9 @@ public class ApiController {
 				Object.class);
 		return (List<AirlineDto>) airlines.getBody();
 	}
+	
+	@GetMapping("/test")
+	private String some() {
+		return "hello";
+	}
 }
