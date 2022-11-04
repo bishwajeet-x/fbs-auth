@@ -78,4 +78,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		return userRepo.findAll();
 	}
 
+	@Override
+	public _User fetchUserByUsername(String username) {
+		_User user = userRepo.findByUsername(username);
+		return user;
+	}
+
 }
