@@ -45,9 +45,17 @@ public class FbsAuthApplication {
 		  adminUser.setUsername("admin");
 		  adminUser.setRoles(List.of(admin));
 		  
-		  userService.saveUser(adminUser);
+		  _User customer = new _User(); 
+		  customer.setName("Vishwajeet");
+		  customer.setPassword("password"); 
+		  customer.setUsername("vishwajeet");
+		  customer.setRoles(List.of(user));
 		  
-		  userService.addRoleToUser("admin", "ROLE_ADMIN"); 
+		  userService.saveUser(adminUser);
+		  userService.saveUser(customer);
+		  
+		  userService.addRoleToUser("admin", "ROLE_ADMIN");
+		  userService.addRoleToUser("vishwajeet", "ROLE_USER"); 
 	  }; 
   }
 }

@@ -26,6 +26,9 @@ import com.flightapp.exception.SomethingWentWrong;
 import com.flightapp.flights.dto.FlightSchedule;
 import com.flightapp.flights.dto.FlightScheduleDto;
 import com.flightapp.service.UserService;
+import com.flightapp.tickets.dto.TicketDto;
+import com.flightapp.tickets.dto.TicketHistoryParam;
+import com.flightapp.tickets.dto.TicketResponseDto;
 
 @RestController
 @RequestMapping("/auth/api")
@@ -162,8 +165,78 @@ public class AuthenticatedRest {
 		}
 	}
 	
+	@GetMapping("/flights/search")
+	public ResponseEntity<FlightSchedule> searchFlights(@RequestParam("id") String id) {
+		String flightSearchUrl = flightUrl+"search?id="+id;
+		System.err.println("URL:: "+flightSearchUrl);
+		try {
+			ResponseEntity<Object> response = template.exchange(flightSearchUrl, HttpMethod.GET, null, Object.class);
+			ObjectMapper mapper = new ObjectMapper();
+			System.out.println("Response:: "+response.getBody());
+			return ResponseEntity.ok(mapper.convertValue(response.getBody(), FlightSchedule.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SomethingWentWrong("Failed to fetch airlines:: ", e);
+		}
+	}
+	
 	//book tickets
+	@PostMapping("/tickets/book")
+	public ResponseEntity<TicketResponseDto> bookTicket(@RequestBody TicketDto request) {
+		try {
+			HttpEntity<TicketDto> requestEntity = new HttpEntity<TicketDto>(request);
+			ResponseEntity<Object> response = template.exchange(ticketUrl, HttpMethod.POST, requestEntity, Object.class);
+			ObjectMapper mapper = new ObjectMapper();
+			return ResponseEntity.ok(mapper.convertValue(response.getBody(), TicketResponseDto.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SomethingWentWrong("Failed to book ticket:: ", e);
+		}
+	}
+	
 	//ticket history
+	@PostMapping("/tickets/history")
+	public ResponseEntity<List<TicketResponseDto>> getTicketHistory(@RequestBody TicketHistoryParam param) {
+		String historyUrl = ticketUrl+"history";
+		try {
+			HttpEntity<TicketHistoryParam> requestEntity = new HttpEntity<TicketHistoryParam>(param);
+			ResponseEntity<Object> response = template.exchange(historyUrl, HttpMethod.POST, requestEntity, Object.class);
+			List<TicketResponseDto> tickets = (List<TicketResponseDto>) response.getBody();
+			return ResponseEntity.ok(tickets);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SomethingWentWrong("Failed to fetch ticket history:: ", e);
+		}
+	}
+	
 	//cancel ticket
+	@GetMapping("/tickets/cancel")
+	public ResponseEntity<TicketResponseDto> cancelTicket(@RequestParam("pnr") String pnr) {
+		String ticketCancelUrl = ticketUrl+"cancel?pnr="+pnr;
+		System.err.println(ticketCancelUrl);
+		try {
+			ResponseEntity<Object> response = template.exchange(ticketCancelUrl, HttpMethod.GET, null, Object.class);
+			ObjectMapper mapper = new ObjectMapper();
+			System.out.println("Response:: "+response.getBody());
+			return ResponseEntity.ok(mapper.convertValue(response.getBody(), TicketResponseDto.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SomethingWentWrong("Failed to cancel ticket:: ", e);
+		}
+	}
 	//search ticket
+	@GetMapping("/tickets/search")
+	public ResponseEntity<TicketResponseDto> searchTicket(@RequestParam("pnr") String pnr) {
+		String ticketSearchUrl = ticketUrl+"search?pnr="+pnr;
+		System.err.println(ticketSearchUrl);
+		try {
+			ResponseEntity<Object> response = template.exchange(ticketSearchUrl, HttpMethod.GET, null, Object.class);
+			ObjectMapper mapper = new ObjectMapper();
+			System.out.println("Response:: "+response.getBody());
+			return ResponseEntity.ok(mapper.convertValue(response.getBody(), TicketResponseDto.class));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SomethingWentWrong("Failed to fetch ticket:: ", e);
+		}
+	}
 }
